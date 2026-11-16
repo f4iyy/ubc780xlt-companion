@@ -1,0 +1,106 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: ${{ matrix.os-name }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os-name: Windows
+            runner: windows-latest
+            shell: pwsh
+            script-ext: ps1
+            cmd-prefix: ''
+          - os-name: Linux
+            runner: ubuntu-24.04
+            shell: bash
+            script-ext: sh
+            cmd-prefix: 'bash '
+          - os-name: macOS
+            runner: macos-latest
+            shell: bash
+            script-ext: sh
+            cmd-prefix: 'bash '
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    env:
+      # For a pull request this is the head of the branch, not the temporary merge commit.
+      COMMIT_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Short commit id
+        id: commit
+        shell: bash
+        run: echo "short=${COMMIT_SHA:0:7}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Build
+        run: ${{ matrix.cmd-prefix }}./scripts/build.${{ matrix.script-ext }}
+
+      - name: Test (unit + integration, coverage >= 80%)
+        run: ${{ matrix.cmd-prefix }}./scripts/test.${{ matrix.script-ext }}
+
+      - name: Reports in the job summary
+        if: always()
+        shell: bash
+        run: |
+          {
+            echo "## Test results (${{ matrix.os-name }})"
+            python3 scripts/ci/summary.py tests || true
+            echo
+            echo "## Coverage (${{ matrix.os-name }})"
+            python3 scripts/ci/summary.py coverage || true
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # Several files: these artifacts are zipped by GitHub.
+      - name: Upload test report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: test-report-${{ matrix.os-name }}-${{ steps.commit.outputs.short }}
+          path: |
+            target/reports/tests
+            target/surefire-reports
+            target/failsafe-reports
+
+      - name: Upload coverage report
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: coverage-report-${{ matrix.os-name }}-${{ steps.commit.outputs.short }}
+          path: target/reports/coverage
+
+      - name: Package
+        run: ${{ matrix.cmd-prefix }}./scripts/package.${{ matrix.script-ext }}
+
+      - name: Name the installer
+        id: installer
+        shell: bash
+        run: bash scripts/ci/name-installer.sh
+
+      # One file: uploaded as it is, not zipped. The artifact is named after the file:
+      # ubc780xlt-companion-<commit>.<msi|deb|dmg>
+      - name: Upload installer
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.installer.outputs.path }}
+          archive: false
+          if-no-files-found: error

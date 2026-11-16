@@ -1,0 +1,221 @@
+/* Rules shared by every Catppuccin flavour; colours come from the palette sheet. */
+.root {
+    -fx-base: -ctp-surface0;
+    -fx-background: -ctp-base;
+    -fx-control-inner-background: -ctp-mantle;
+    -fx-control-inner-background-alt: -ctp-base;
+    -fx-text-base-color: -ctp-text;
+    -fx-text-background-color: -ctp-text;
+    -fx-accent: -ctp-blue;
+    -fx-focus-color: -ctp-blue;
+    -fx-faint-focus-color: transparent;
+    -fx-selection-bar: -ctp-blue;
+    -fx-selection-bar-text: -ctp-crust;
+    -fx-background-color: -ctp-base;
+}
+
+.label {
+    -fx-text-fill: -ctp-text;
+}
+
+.menu-bar {
+    -fx-background-color: -ctp-mantle;
+}
+
+.menu-bar .label {
+    -fx-text-fill: -ctp-text;
+}
+
+.context-menu,
+.menu-item {
+    -fx-background-color: -ctp-mantle;
+}
+
+.menu-item .label {
+    -fx-text-fill: -ctp-text;
+}
+
+.menu-item:focused {
+    -fx-background-color: -ctp-blue;
+}
+
+.menu-item:focused .label {
+    -fx-text-fill: -ctp-crust;
+}
+
+.button {
+    -fx-background-color: -ctp-surface0;
+    -fx-text-fill: -ctp-text;
+    -fx-background-radius: 6;
+    -fx-border-color: -ctp-surface1;
+    -fx-border-radius: 6;
+}
+
+.button:hover {
+    -fx-background-color: -ctp-surface1;
+}
+
+.button:disabled {
+    -fx-opacity: 0.5;
+}
+
+.combo-box-base {
+    -fx-background-color: -ctp-surface0;
+    -fx-background-radius: 6;
+}
+
+.toolbar-box {
+    -fx-padding: 10 12 10 12;
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+}
+
+.status-bar {
+    -fx-background-color: -ctp-mantle;
+    -fx-border-color: -ctp-surface1 transparent transparent transparent;
+    -fx-padding: 6 12 6 12;
+    -fx-spacing: 16;
+}
+
+.status-bar .label {
+    -fx-text-fill: -ctp-subtext;
+}
+
+.placeholder {
+    -fx-text-fill: -ctp-overlay0;
+    -fx-font-size: 16px;
+}
+
+.state-connected {
+    -fx-text-fill: -ctp-green;
+    -fx-font-weight: bold;
+}
+
+.state-connecting,
+.state-reconnecting {
+    -fx-text-fill: -ctp-yellow;
+    -fx-font-weight: bold;
+}
+
+.state-lost {
+    -fx-text-fill: -ctp-red;
+    -fx-font-weight: bold;
+}
+
+.state-disconnected {
+    -fx-text-fill: -ctp-overlay0;
+    -fx-font-weight: bold;
+}
+
+.scanner-key {
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+    -fx-padding: 8 6 8 6;
+}
+
+.hint {
+    -fx-text-fill: -ctp-overlay0;
+    -fx-font-size: 11px;
+}
+
+.text-field,
+.combo-box {
+    -fx-background-color: -ctp-surface0;
+    -fx-text-fill: -ctp-text;
+}
+
+/* Tabs */
+.tab-pane > .tab-header-area > .tab-header-background {
+    -fx-background-color: -ctp-mantle;
+}
+
+.tab {
+    -fx-background-color: -ctp-surface0;
+}
+
+.tab:selected {
+    -fx-background-color: -ctp-base;
+}
+
+.tab .tab-label {
+    -fx-text-fill: -ctp-subtext;
+}
+
+.tab:selected .tab-label {
+    -fx-text-fill: -ctp-text;
+}
+
+/* Tables */
+.table-view {
+    -fx-background-color: -ctp-mantle;
+    -fx-table-cell-border-color: -ctp-surface0;
+}
+
+.table-view .column-header-background,
+.table-view .filler {
+    -fx-background-color: -ctp-surface0;
+}
+
+.table-view .column-header {
+    -fx-background-color: -ctp-surface0;
+    -fx-border-color: -ctp-surface1;
+}
+
+.table-view .column-header .label {
+    -fx-text-fill: -ctp-text;
+    -fx-font-weight: bold;
+}
+
+.table-row-cell {
+    -fx-background-color: -ctp-mantle;
+}
+
+.table-row-cell:odd {
+    -fx-background-color: -ctp-base;
+}
+
+.table-row-cell.row-modified {
+    -fx-background-color: derive(-ctp-yellow, -78%);
+}
+
+.table-row-cell:selected {
+    -fx-background-color: -ctp-blue;
+}
+
+.table-cell {
+    -fx-text-fill: -ctp-text;
+}
+
+.table-row-cell:selected .table-cell {
+    -fx-text-fill: -ctp-crust;
+}
+
+.dialog-pane {
+    -fx-background-color: -ctp-base;
+}
+
+.table-row-cell.row-live {
+    -fx-background-color: derive(-ctp-green, -75%);
+}
+
+.check-box .label,
+.choice-box .label {
+    -fx-text-fill: -ctp-text;
+}
+
+.choice-box {
+    -fx-background-color: -ctp-surface0;
+}
+
+.list-view {
+    -fx-background-color: -ctp-mantle;
+}
+
+.list-cell {
+    -fx-background-color: -ctp-mantle;
+    -fx-text-fill: -ctp-text;
+}
+
+.remote-panel {
+    -fx-border-color: transparent transparent -ctp-surface1 transparent;
+}

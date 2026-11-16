@@ -1,0 +1,38 @@
+package io.github.f4iyy.ubc780xlt.protocol.lcd;
+
+/** The 33 icons reported by the {@code LCD} command, in the order the scanner sends them. */
+public enum Icon {
+    P,
+    E,
+    M,
+    L,
+    BANK,
+    LIST,
+    SCAN,
+    TRUNK,
+    FDOT,
+    N,
+    DCS,
+    CTCSS,
+    AM,
+    FM,
+    WFM,
+    SRCH,
+    HOLD,
+    FREQ,
+    CHAN,
+    PRI,
+    DLY,
+    LOUT,
+    ALPHA,
+    RMT,
+    AUTO,
+    CDOT,
+    HZ,
+    S,
+    KLOC,
+    ATT,
+    LINE,
+    ALT,
+    DATA
+}

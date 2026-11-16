@@ -1,0 +1,25 @@
+# Build
+target/
+dependency-reduced-pom.xml
+
+# Runtime
+logs/
+config.properties
+
+# IDE
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Uniden documents: EULA forbids redistribution, never commit them
+docs/*.pdf
+
+# Claude Code local files
+.claude/settings.local.json

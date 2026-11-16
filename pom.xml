@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>io.github.f4iyy</groupId>
+  <artifactId>ubc780xlt-companion</artifactId>
+  <version>0.0.1</version>
+  <packaging>jar</packaging>
+  <name>UBC780XLT Companion</name>
+  <description>Remote control and programming software for the Uniden BC780XLT scanner</description>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.release>21</maven.compiler.release>
+    <javafx.version>21.0.5</javafx.version>
+    <junit.version>5.10.2</junit.version>
+    <log4j.version>2.23.1</log4j.version>
+    <poi.version>5.2.5</poi.version>
+    <jserialcomm.version>2.10.4</jserialcomm.version>
+    <jacoco.version>0.8.12</jacoco.version>
+    <surefire.version>3.2.5</surefire.version>
+    <!-- Minimum coverage (unit + integration tests merged) -->
+    <coverage.minimum>0.80</coverage.minimum>
+    <app.mainClass>io.github.f4iyy.ubc780xlt.Launcher</app.mainClass>
+  </properties>
+
+  <dependencies>
+    <dependency>
+      <groupId>org.openjfx</groupId>
+      <artifactId>javafx-controls</artifactId>
+      <version>${javafx.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-api</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.logging.log4j</groupId>
+      <artifactId>log4j-core</artifactId>
+      <version>${log4j.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.poi</groupId>
+      <artifactId>poi-ooxml</artifactId>
+      <version>${poi.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>com.fazecast</groupId>
+      <artifactId>jSerialComm</artifactId>
+      <version>${jserialcomm.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.junit.jupiter</groupId>
+      <artifactId>junit-jupiter</artifactId>
+      <version>${junit.version}</version>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <profiles>
+    <profile>
+      <id>javafx-win</id>
+      <activation><os><family>windows</family></os></activation>
+      <properties><javafx.platform>win</javafx.platform></properties>
+    </profile>
+    <profile>
+      <id>javafx-linux</id>
+      <activation><os><family>unix</family><name>Linux</name></os></activation>
+      <properties><javafx.platform>linux</javafx.platform></properties>
+    </profile>
+    <profile>
+      <id>javafx-mac-x64</id>
+      <activation><os><family>mac</family><arch>x86_64</arch></os></activation>
+      <properties><javafx.platform>mac</javafx.platform></properties>
+    </profile>
+    <profile>
+      <id>javafx-mac-aarch64</id>
+      <activation><os><family>mac</family><arch>aarch64</arch></os></activation>
+      <properties><javafx.platform>mac-aarch64</javafx.platform></properties>
+    </profile>
+  </profiles>
+
+  <build>
+    <finalName>${project.artifactId}</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.13.0</version>
+      </plugin>
+
+      <!-- Unit tests: *Test -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <version>${surefire.version}</version>
+        <configuration>
+          <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
+        </configuration>
+      </plugin>
+
+      <!-- Integration tests: *IT (declared before JaCoCo so that its verify runs first) -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-failsafe-plugin</artifactId>
+        <version>${surefire.version}</version>
+        <configuration>
+          <argLine>@{argLine} -Dfile.encoding=UTF-8</argLine>
+        </configuration>
+        <executions>
+          <execution>
+            <goals>
+              <goal>integration-test</goal>
+              <goal>verify</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Coverage: unit + integration tests write to the same exec file -->
+      <plugin>
+        <groupId>org.jacoco</groupId>
+        <artifactId>jacoco-maven-plugin</artifactId>
+        <version>${jacoco.version}</version>
+        <configuration>
+          <dataFile>${project.build.directory}/jacoco.exec</dataFile>
+          <excludes>
+            <!-- JavaFX bootstrap, no logic -->
+            <exclude>io/github/f4iyy/ubc780xlt/Launcher.class</exclude>
+            <exclude>io/github/f4iyy/ubc780xlt/MainApp.class</exclude>
+            <!-- Real serial port (jSerialComm): needs hardware, validated manually -->
+            <exclude>io/github/f4iyy/ubc780xlt/protocol/serial/**</exclude>
+            <!-- JavaFX views: pure widget wiring, logic lives in the view models -->
+            <exclude>io/github/f4iyy/ubc780xlt/ui/view/**</exclude>
+          </excludes>
+        </configuration>
+        <executions>
+          <execution>
+            <id>prepare-agent</id>
+            <goals><goal>prepare-agent</goal></goals>
+            <configuration>
+              <destFile>${project.build.directory}/jacoco.exec</destFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>prepare-agent-integration</id>
+            <goals><goal>prepare-agent-integration</goal></goals>
+            <configuration>
+              <destFile>${project.build.directory}/jacoco.exec</destFile>
+            </configuration>
+          </execution>
+          <execution>
+            <id>report</id>
+            <phase>verify</phase>
+            <goals><goal>report</goal></goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/reports/coverage</outputDirectory>
+            </configuration>
+          </execution>
+          <execution>
+            <id>check</id>
+            <phase>verify</phase>
+            <goals><goal>check</goal></goals>
+            <configuration>
+              <rules>
+                <rule>
+                  <element>BUNDLE</element>
+                  <limits>
+                    <limit>
+                      <counter>LINE</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>${coverage.minimum}</minimum>
+                    </limit>
+                    <limit>
+                      <counter>BRANCH</counter>
+                      <value>COVEREDRATIO</value>
+                      <minimum>${coverage.minimum}</minimum>
+                    </limit>
+                  </limits>
+                </rule>
+              </rules>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Test report (HTML) from surefire + failsafe XML results -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-report-plugin</artifactId>
+        <version>${surefire.version}</version>
+        <configuration>
+          <outputDirectory>${project.build.directory}/reports/tests</outputDirectory>
+          <outputName>tests</outputName>
+          <reportsDirectories>
+            <reportsDirectory>${project.build.directory}/surefire-reports</reportsDirectory>
+            <reportsDirectory>${project.build.directory}/failsafe-reports</reportsDirectory>
+          </reportsDirectories>
+        </configuration>
+        <executions>
+          <execution>
+            <id>test-report</id>
+            <phase>verify</phase>
+            <goals><goal>report-only</goal></goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <!-- Copy runtime dependencies for jpackage -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.6.1</version>
+        <executions>
+          <execution>
+            <id>copy-runtime-libs</id>
+            <phase>package</phase>
+            <goals><goal>copy-dependencies</goal></goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/jpackage-input/lib</outputDirectory>
+              <includeScope>runtime</includeScope>
+              <excludeGroupIds>org.openjfx</excludeGroupIds>
+            </configuration>
+          </execution>
+          <!-- JavaFX goes on the module path so that jlink bundles it in the runtime image -->
+          <execution>
+            <id>copy-javafx-modules</id>
+            <phase>package</phase>
+            <goals><goal>copy-dependencies</goal></goals>
+            <configuration>
+              <outputDirectory>${project.build.directory}/jpackage-modules</outputDirectory>
+              <includeScope>runtime</includeScope>
+              <includeGroupIds>org.openjfx</includeGroupIds>
+              <!-- only the platform jars (the classifier-less ones are empty stubs) -->
+              <includeClassifiers>${javafx.platform}</includeClassifiers>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <version>3.4.1</version>
+        <configuration>
+          <outputDirectory>${project.build.directory}/jpackage-input</outputDirectory>
+          <archive>
+            <manifest>
+              <mainClass>${app.mainClass}</mainClass>
+            </manifest>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

@@ -1,0 +1,133 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    name: ${{ matrix.os-name }}
+    runs-on: ${{ matrix.runner }}
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - os-name: Windows
+            runner: windows-latest
+            shell: pwsh
+            script-ext: ps1
+            cmd-prefix: ''
+          - os-name: Linux
+            runner: ubuntu-24.04
+            shell: bash
+            script-ext: sh
+            cmd-prefix: 'bash '
+          - os-name: macOS
+            runner: macos-latest
+            shell: bash
+            script-ext: sh
+            cmd-prefix: 'bash '
+    defaults:
+      run:
+        shell: ${{ matrix.shell }}
+    env:
+      COMMIT_SHA: ${{ github.sha }}
+
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Short commit id
+        id: commit
+        shell: bash
+        run: echo "short=${COMMIT_SHA:0:7}" >> "$GITHUB_OUTPUT"
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - name: Check that the tag matches the Maven version
+        shell: bash
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          VERSION="$(bash ./mvnw -B -q -DforceStdout help:evaluate -Dexpression=project.version)"
+          if [ "$TAG" != "$VERSION" ]; then
+            echo "Tag v$TAG does not match pom.xml version $VERSION" >&2
+            exit 1
+          fi
+
+      - name: Build
+        run: ${{ matrix.cmd-prefix }}./scripts/build.${{ matrix.script-ext }}
+
+      - name: Test (unit + integration, coverage >= 80%)
+        run: ${{ matrix.cmd-prefix }}./scripts/test.${{ matrix.script-ext }}
+
+      - name: Package
+        run: ${{ matrix.cmd-prefix }}./scripts/package.${{ matrix.script-ext }}
+
+      - name: Name the installer
+        id: installer
+        shell: bash
+        env:
+          INSTALLER_VERSION: ${{ github.ref_name }}
+        run: |
+          INSTALLER_VERSION="${INSTALLER_VERSION#v}" bash scripts/ci/name-installer.sh
+
+      # One file: uploaded as it is, not zipped; the artifact is named after the file
+      # (ubc780xlt-companion-<version>.<msi|deb|dmg>) and the release job picks them up by that name.
+      - name: Upload installer for the release job
+        uses: actions/upload-artifact@v7
+        with:
+          path: ${{ steps.installer.outputs.path }}
+          archive: false
+          if-no-files-found: error
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v7
+        with:
+          name: reports-${{ matrix.os-name }}-${{ steps.commit.outputs.short }}
+          path: |
+            target/reports/tests
+            target/reports/coverage
+
+  release:
+    name: GitHub Release
+    needs: build
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: '21'
+          cache: maven
+
+      - uses: actions/download-artifact@v8
+        with:
+          pattern: ubc780xlt-companion-*
+          path: installers
+          merge-multiple: true
+
+      # Portable zip (jar + libraries + JavaFX of every platform + launch scripts):
+      # platform independent, so it is built once here.
+      - name: Build the portable zip
+        run: |
+          bash scripts/package-zip.sh
+          cp target/dist-zip/*.zip installers/
+
+      # Installers are attached to the release as they are (no zip around them), next to the portable zip.
+      - name: Create the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          ls -l installers
+          gh release create "$GITHUB_REF_NAME" installers/* \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "$GITHUB_REF_NAME" \
+            --generate-notes

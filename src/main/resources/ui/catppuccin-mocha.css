@@ -1,0 +1,16 @@
+/* Catppuccin Mocha */
+.root {
+    -ctp-base: #1e1e2e;
+    -ctp-mantle: #181825;
+    -ctp-crust: #11111b;
+    -ctp-text: #cdd6f4;
+    -ctp-subtext: #a6adc8;
+    -ctp-surface0: #313244;
+    -ctp-surface1: #45475a;
+    -ctp-overlay0: #6c7086;
+    -ctp-blue: #89b4fa;
+    -ctp-mauve: #cba6f7;
+    -ctp-green: #a6e3a1;
+    -ctp-yellow: #f9e2af;
+    -ctp-red: #f38ba8;
+}

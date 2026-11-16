@@ -1,0 +1,41 @@
+P -
+E -
+M -
+L -
+BANK +
+LIST -
+SCAN +
+TRUNK -
+FDOT -
+N -
+DCS -
+CTCSS -
+AM -
+FM -
+WFM -
+SRCH -
+HOLD -
+FREQ -
+CHAN +
+PRI -
+DLY -
+LOUT -
+ALPHA -
+RMT +
+AUTO -
+CDOT -
+HZ -
+S -
+KLOC -
+ATT -
+LINE -
+ALT -
+DATA +
+BAR -----------------------------
+SMT ------
+BNK +--------*
+CHN [470]
+FRQ [        ]
+CTC [      ]
+LINE1 [                ][                ]
+LINE2 [> SCANNING      ][                ]

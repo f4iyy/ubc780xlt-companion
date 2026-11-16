@@ -1,0 +1,16 @@
+/* Catppuccin Latte */
+.root {
+    -ctp-base: #eff1f5;
+    -ctp-mantle: #e6e9ef;
+    -ctp-crust: #dce0e8;
+    -ctp-text: #4c4f69;
+    -ctp-subtext: #6c6f85;
+    -ctp-surface0: #ccd0da;
+    -ctp-surface1: #bcc0cc;
+    -ctp-overlay0: #9ca0b0;
+    -ctp-blue: #1e66f5;
+    -ctp-mauve: #8839ef;
+    -ctp-green: #40a02b;
+    -ctp-yellow: #df8e1d;
+    -ctp-red: #d20f39;
+}
